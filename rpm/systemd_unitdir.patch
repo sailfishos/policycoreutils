@@ -1,0 +1,13 @@
+diff --git a/restorecond/Makefile b/restorecond/Makefile
+index ada94ae..0de21fd 100644
+--- a/restorecond/Makefile
++++ b/restorecond/Makefile
+@@ -7,7 +7,7 @@ LIBDIR ?= $(PREFIX)/lib
+ MANDIR = $(PREFIX)/share/man
+ AUTOSTARTDIR = $(DESTDIR)/etc/xdg/autostart
+ DBUSSERVICEDIR = $(DESTDIR)/usr/share/dbus-1/services
+-SYSTEMDDIR ?= $(DESTDIR)/usr/lib/systemd
++SYSTEMDDIR ?= $(DESTDIR)/lib/systemd
+ 
+ autostart_DATA = sealertauto.desktop
+ INITDIR ?= $(DESTDIR)/etc/rc.d/init.d

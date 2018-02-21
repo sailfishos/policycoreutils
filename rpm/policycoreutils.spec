@@ -27,6 +27,8 @@
 %global sepolgenver     2.7
 
 %global generatorsdir %{_prefix}/lib/systemd/system-generators
+%define python3_sitearch /%{_libdir}/python3.?/site-packages
+%define python3_sitelib /%{_libdir}/python3.?/site-packages
 
 Summary: SELinux policy core utilities
 Name:    policycoreutils
@@ -34,47 +36,27 @@ Version: 2.7
 Release: 10%{?dist}
 License: GPLv2
 Group:   System Environment/Base
-# https://github.com/SELinuxProject/selinux/wiki/Releases
-Source0: https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/files/releases/20170804/policycoreutils-2.7.tar.gz
-Source1: https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/files/releases/20170804/selinux-python-2.7.tar.gz
-Source2: https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/files/releases/20170804/selinux-gui-2.7.tar.gz
-Source3: https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/files/releases/20170804/selinux-sandbox-2.7.tar.gz
-Source4: https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/files/releases/20170804/selinux-dbus-2.7.tar.gz
-Source5: https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/files/releases/20170804/semodule-utils-2.7.tar.gz
-Source6: https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/files/releases/20170804/restorecond-2.7.tar.gz
+Source: %{name}-%{version}.tar.bz2
 URL:     https://github.com/SELinuxProject
-Source12: policycoreutils_man_ru2.tar.bz2
-Source13: system-config-selinux.png
-Source14: sepolicy-icons.tgz
 Source15: selinux-autorelabel
 Source16: selinux-autorelabel.service
 Source17: selinux-autorelabel-mark.service
 Source18: selinux-autorelabel.target
 Source19: selinux-autorelabel-generator.sh
-# download https://raw.githubusercontent.com/fedora-selinux/scripts/master/selinux/make-fedora-selinux-patch.sh
-# run:
-# HEAD https://github.com/fedora-selinux/selinux/commit/3dd7e297f42b8c05964591b008915e2514c6cb2d
-# $ for i in policycoreutils selinux-python selinux-gui selinux-sandbox selinux-dbus semodule-utils restorecond; do
-#   ./make-fedora-selinux-patch.sh $i
-# done
-Patch:   policycoreutils-fedora.patch
-Patch1:  selinux-python-fedora.patch
-Patch2:  selinux-gui-fedora.patch
-Patch3:  selinux-sandbox-fedora.patch
-Patch4:  selinux-dbus-fedora.patch
-Patch5:  semodule-utils-fedora.patch
-Patch6:  restorecond-fedora.patch
+Patch0: systemd_unitdir.patch
 Obsoletes: policycoreutils < 2.0.61-2
-Conflicts: filesystem < 3, selinux-policy-base < 3.13.1-138
+#Conflicts: filesystem < 3, selinux-policy-base < 3.13.1-138
 # initscripts < 9.66 shipped fedora-autorelabel services which are renamed to selinux-relabel
-Conflicts: initscripts < 9.66
+#Conflicts: initscripts < 9.66
 Provides: /sbin/fixfiles
 Provides: /sbin/restorecon
 
-BuildRequires: pam-devel libcgroup-devel libsepol-static >= %{libsepolver} libsemanage-static >= %{libsemanagever} libselinux-devel >= %{libselinuxver}  libcap-devel audit-libs-devel >=  %{libauditver} gettext
-BuildRequires: desktop-file-utils dbus-devel dbus-glib-devel
-BuildRequires: python-devel python3-devel
+BuildRequires: pam-devel libcap-ng-devel libsepol-static >= %{libsepolver} libsemanage-static >= %{libsemanagever} libselinux-devel >= %{libselinuxver}  libcap-devel audit-libs-devel >=  %{libauditver} gettext
+BuildRequires: dbus-devel dbus-glib-devel
+BuildRequires: python3-devel
 BuildRequires: systemd
+# we don't build python2 modules, but make clean expects python2 (could be patched out though)
+BuildRequires: python
 Requires: util-linux grep gawk diffutils rpm sed
 Requires: libsepol >= %{libsepolver} coreutils libselinux-utils >=  %{libselinuxver}
 
@@ -95,34 +77,15 @@ load_policy to load policies, setfiles to label filesystems, newrole
 to switch roles.
 
 %prep
-# create selinux/ directory and extract sources
-%setup -q -c -n selinux
-%setup -q -T -D -a 1 -n selinux
-%setup -q -T -D -a 2 -n selinux
-%setup -q -T -D -a 3 -n selinux
-%setup -q -T -D -a 4 -n selinux
-%setup -q -T -D -a 5 -n selinux
-%setup -q -T -D -a 6 -n selinux
-%patch -p0 -b .policycoreutils-fedora
-
-cp %{SOURCE13} selinux-gui-%{version}/
-tar -xvf %{SOURCE14} -C selinux-python-%{version}/sepolicy/
-%patch1 -p0 -b .selinux-python
-%patch2 -p0 -b .selinux-gui
-%patch3 -p0 -b .selinux-sandbox
-%patch4 -p0 -b .selinux-dbus
-%patch5 -p0 -b .semodule-utils
-%patch6 -p0 -b .restorecond
-
+%setup -q -n %{name}-%{version}/upstream
+%patch0 -p 1
 
 %build
-make -C policycoreutils-%{version} LSPP_PRIV=y SBINDIR="%{_sbindir}" LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro -Wl,-z,now" SEMODULE_PATH="/usr/sbin" LIBSEPOLA="%{_libdir}/libsepol.a" all
-make -C selinux-python-%{version} SBINDIR="%{_sbindir}" LSPP_PRIV=y LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro" LIBSEPOLA="%{_libdir}/libsepol.a" all
-make -C selinux-gui-%{version} SBINDIR="%{_sbindir}" LSPP_PRIV=y LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro" LIBSEPOLA="%{_libdir}/libsepol.a" all
-make -C selinux-sandbox-%{version} SBINDIR="%{_sbindir}" LSPP_PRIV=y LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro" LIBSEPOLA="%{_libdir}/libsepol.a" all
-make -C selinux-dbus-%{version} SBINDIR="%{_sbindir}" LSPP_PRIV=y LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro" LIBSEPOLA="%{_libdir}/libsepol.a" all
-make -C semodule-utils-%{version} SBINDIR="%{_sbindir}" LSPP_PRIV=y LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro" LIBSEPOLA="%{_libdir}/libsepol.a" all
-make -C restorecond-%{version} SBINDIR="%{_sbindir}" LSPP_PRIV=y LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro" LIBSEPOLA="%{_libdir}/libsepol.a" all
+make -C policycoreutils LSPP_PRIV=y SBINDIR="%{_sbindir}" LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro -Wl,-z,now" SEMODULE_PATH="/usr/sbin" LIBSEPOLA="%{_libdir}/libsepol.a" all
+make -C python SBINDIR="%{_sbindir}" LSPP_PRIV=y LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro" LIBSEPOLA="%{_libdir}/libsepol.a" all
+make -C dbus SBINDIR="%{_sbindir}" LSPP_PRIV=y LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro" LIBSEPOLA="%{_libdir}/libsepol.a" all
+make -C semodule-utils SBINDIR="%{_sbindir}" LSPP_PRIV=y LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro" LIBSEPOLA="%{_libdir}/libsepol.a" all
+make -C restorecond SBINDIR="%{_sbindir}" LSPP_PRIV=y LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro" LIBSEPOLA="%{_libdir}/libsepol.a" all
 
 %install
 mkdir -p %{buildroot}%{_bindir}
@@ -132,50 +95,28 @@ mkdir -p %{buildroot}%{_mandir}/man5
 mkdir -p %{buildroot}%{_mandir}/man8
 %{__mkdir} -p %{buildroot}/%{_usr}/share/doc/%{name}/
 
-make -C policycoreutils-%{version} LSPP_PRIV=y  DESTDIR="%{buildroot}" SBINDIR="%{buildroot}%{_sbindir}" LIBDIR="%{buildroot}%{_libdir}" SEMODULE_PATH="/usr/sbin" LIBSEPOLA="%{_libdir}/libsepol.a" install
+make -C policycoreutils LSPP_PRIV=y  DESTDIR="%{buildroot}" SBINDIR="%{buildroot}%{_sbindir}" LIBDIR="%{buildroot}%{_libdir}" SEMODULE_PATH="/usr/sbin" LIBSEPOLA="%{_libdir}/libsepol.a" install
 
-make -C selinux-python-%{version} DESTDIR="%{buildroot}" SBINDIR="%{buildroot}%{_sbindir}" LIBDIR="%{buildroot}%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a" install
-make -C selinux-python-%{version} PYTHON=%{__python3} DESTDIR="%{buildroot}" SBINDIR="%{buildroot}%{_sbindir}" LIBDIR="%{buildroot}%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a" install
+make -C python PYTHON=%{__python3} DESTDIR="%{buildroot}" SBINDIR="%{buildroot}%{_sbindir}" LIBDIR="%{buildroot}%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a" install
 
-make -C selinux-gui-%{version} PYTHON=%{__python3} DESTDIR="%{buildroot}" SBINDIR="%{buildroot}%{_sbindir}" LIBDIR="%{buildroot}%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a" install
+make -C dbus PYTHON=%{__python3} DESTDIR="%{buildroot}" SBINDIR="%{buildroot}%{_sbindir}" LIBDIR="%{buildroot}%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a" install
 
-make -C selinux-sandbox-%{version} PYTHON=%{__python3} DESTDIR="%{buildroot}" SBINDIR="%{buildroot}%{_sbindir}" LIBDIR="%{buildroot}%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a" install
+make -C semodule-utils PYTHON=%{__python3} DESTDIR="%{buildroot}" SBINDIR="%{buildroot}%{_sbindir}" LIBDIR="%{buildroot}%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a" install
 
-make -C selinux-dbus-%{version} PYTHON=%{__python3} DESTDIR="%{buildroot}" SBINDIR="%{buildroot}%{_sbindir}" LIBDIR="%{buildroot}%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a" install
-
-make -C semodule-utils-%{version} PYTHON=%{__python3} DESTDIR="%{buildroot}" SBINDIR="%{buildroot}%{_sbindir}" LIBDIR="%{buildroot}%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a" install
-
-make -C restorecond-%{version} PYTHON=%{__python3} DESTDIR="%{buildroot}" SBINDIR="%{buildroot}%{_sbindir}" LIBDIR="%{buildroot}%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a" install
+make -C restorecond PYTHON=%{__python3} DESTDIR="%{buildroot}" SBINDIR="%{buildroot}%{_sbindir}" LIBDIR="%{buildroot}%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a" install
 
 
 # Systemd
 rm -rf %{buildroot}/%{_sysconfdir}/rc.d/init.d/restorecond
 
-tar -jxf %{SOURCE12} -C %{buildroot}/
-rm -f %{buildroot}/usr/share/man/ru/man8/genhomedircon.8.gz
-rm -f %{buildroot}/usr/share/man/ru/man8/open_init_pty.8.gz
-rm -f %{buildroot}/usr/share/man/ru/man8/semodule_deps.8.gz
 rm -f %{buildroot}/usr/share/man/man8/open_init_pty.8
 rm -f %{buildroot}/usr/sbin/open_init_pty
 rm -f %{buildroot}/usr/sbin/run_init
-rm -f %{buildroot}/usr/share/man/ru/man8/run_init.8*
-rm -f %{buildroot}/usr/share/man/man8/run_init.8*
 rm -f %{buildroot}/etc/pam.d/run_init*
-
-ln -sf /usr/share/system-config-selinux/polgengui.py %{buildroot}%{_bindir}/selinux-polgengui
-
-desktop-file-install --dir ${RPM_BUILD_ROOT}%{_datadir}/applications --add-category Settings \
-    %{buildroot}%{_datadir}/system-config-selinux/system-config-selinux.desktop
-
-desktop-file-install --dir ${RPM_BUILD_ROOT}%{_datadir}/applications --add-category Settings \
-    %{buildroot}%{_datadir}/system-config-selinux/sepolicy.desktop
-
-desktop-file-install --dir ${RPM_BUILD_ROOT}%{_datadir}/applications \
-    %{buildroot}%{_datadir}/system-config-selinux/selinux-polgengui.desktop
-
-rm -f %{buildroot}%{_datadir}/system-config-selinux/selinux-polgengui.desktop
-rm -f %{buildroot}%{_datadir}/system-config-selinux/sepolicy.desktop
-rm -f %{buildroot}%{_datadir}/system-config-selinux/system-config-selinux.desktop
+rm -f %{buildroot}/usr/share/man/man8/sepolicy-gui.8*
+rm -f %{buildroot}/usr/share/man/man8/run_init.8*
+rm -f %{buildroot}/usr/lib/python3.4/site-packages/sepolicy/sepolicy.glade
+rm -f %{buildroot}/usr/lib/python3.4/site-packages/sepolicy/gui.py
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1328825
 mkdir   -m 755 -p %{buildroot}/%{_unitdir}/basic.target.wants/
@@ -187,10 +128,6 @@ install -m 755 -p %{SOURCE19} %{buildroot}/%{generatorsdir}/
 install -m 755 -p %{SOURCE15} %{buildroot}/%{_libexecdir}/selinux/
 ln -s ../selinux-autorelabel-mark.service %{buildroot}/%{_unitdir}/basic.target.wants/
 
-# change /usr/bin/python3 to /usr/bin/python in policycoreutils-python
-find %{buildroot}%{python2_sitelib} %{buildroot}%{python2_sitearch} -type f | xargs \
-    sed -i '1s%\(#! */usr/bin/python\)3%\1%'
-
 # change /usr/bin/python to %%{__python3} in policycoreutils-python3
 find %{buildroot}%{python3_sitelib} %{buildroot}%{python3_sitearch} -type f | xargs \
     sed -i '1s%\(#! *\)/usr/bin/python\([^3].*\|\)$%\1%{__python3}\2%'
@@ -199,13 +136,10 @@ find %{buildroot}%{python3_sitelib} %{buildroot}%{python3_sitearch} -type f | xa
 sed -i '1s%\(#! *\)/usr/bin/python\([^3].*\|\)$%\1%{__python3}\2%' \
     %{buildroot}%{_sbindir}/semanage \
     %{buildroot}%{_bindir}/chcat \
-    %{buildroot}%{_bindir}/sandbox \
     %{buildroot}%{_bindir}/audit2allow \
     %{buildroot}%{_bindir}/audit2why \
     %{buildroot}%{_bindir}/sepolicy \
     %{buildroot}%{_bindir}/sepolgen{,-ifgen} \
-    %{buildroot}%{_datadir}/system-config-selinux/system-config-selinux.py \
-    %{buildroot}%{_datadir}/system-config-selinux/selinux_server.py \
     %nil
 
 %find_lang %{name}
@@ -222,21 +156,15 @@ an SELinux environment.
 %files python-utils
 %{_sbindir}/semanage
 %{_bindir}/chcat
-%{_bindir}/sandbox
 %{_bindir}/audit2allow
 %{_bindir}/audit2why
 %{_mandir}/man1/audit2allow.1*
-%{_mandir}/ru/man1/audit2allow.1*
 %{_bindir}/semodule_package
 %{_mandir}/man8/semodule_package.8*
-%{_mandir}/ru/man8/semodule_package.8*
 %{_mandir}/man1/audit2why.1*
 %{_sysconfdir}/dbus-1/system.d/org.selinux.conf
 %{_mandir}/man8/chcat.8*
-%{_mandir}/ru/man8/chcat.8*
-%{_mandir}/man8/sandbox.8*
 %{_mandir}/man8/semanage*.8*
-%{_mandir}/ru/man8/semanage.8*
 %{_datadir}/bash-completion/completions/semanage
 %{_datadir}/bash-completion/completions/setsebool
 
@@ -253,7 +181,6 @@ an SELinux environment.
 %{_sysconfdir}/dbus-1/system.d/org.selinux.conf
 %{_datadir}/dbus-1/system-services/org.selinux.service
 %{_datadir}/polkit-1/actions/org.selinux.policy
-%{_datadir}/polkit-1/actions/org.selinux.config.policy
 %{_datadir}/system-config-selinux/selinux_server.py*
 
 %package python3
@@ -290,42 +217,6 @@ by python 3 in an SELinux environment.
 %{python3_sitelib}/sepolicy*.egg-info
 %{python3_sitelib}/sepolicy/__pycache__
 
-%package -n python2-policycoreutils
-%{?python_provide:%python_provide python2-policycoreutils}
-# Remove before F30
-Provides: %{name}-python = %{version}-%{release}
-Provides: %{name}-python%{?_isa} = %{version}-%{release}
-Obsoletes: %{name}-python < %{version}-%{release}
-Summary: SELinux policy core python utilities
-Group:   System Environment/Base
-Requires:policycoreutils = %{version}-%{release}
-Requires:libsemanage-python >= %{libsemanagever} libselinux-python libcgroup
-Requires:audit-libs-python2 >=  %{libauditver}
-Obsoletes: policycoreutils < 2.0.61-2
-Requires: python-IPy
-Requires: checkpolicy
-Requires: setools-python >= 4.1.1
-
-%description -n python2-policycoreutils
-The policycoreutils-python package contains the management tools use to manage
-an SELinux environment.
-
-%files -n python2-policycoreutils
-%{python2_sitearch}/seobject.py*
-%{python2_sitearch}/sepolgen
-%dir %{python2_sitelib}/sepolicy
-%{python2_sitelib}/sepolicy/templates
-%{python2_sitelib}/sepolicy/__init__.py*
-%{python2_sitelib}/sepolicy/booleans.py*
-%{python2_sitelib}/sepolicy/communicate.py*
-%{python2_sitelib}/sepolicy/generate.py*
-%{python2_sitelib}/sepolicy/interface.py*
-%{python2_sitelib}/sepolicy/manpage.py*
-%{python2_sitelib}/sepolicy/network.py*
-%{python2_sitelib}/sepolicy/transition.py*
-%{python2_sitelib}/sepolicy/sedbus.py*
-%{python2_sitelib}/sepolicy*.egg-info
-
 %package devel
 Summary: SELinux policy core policy devel utilities
 Group:   System Environment/Base
@@ -356,31 +247,11 @@ The policycoreutils-devel package contains the management tools use to develop p
 %{_bindir}/semodule_expand
 %{_bindir}/semodule_link
 %{_bindir}/semodule_unpackage
+%{_bindir}/semodule_deps
 %{_mandir}/man8/semodule_expand.8*
-%{_mandir}/ru/man8/semodule_expand.8*
 %{_mandir}/man8/semodule_link.8*
-%{_mandir}/ru/man8/semodule_link.8*
 %{_mandir}/man8/semodule_unpackage.8*
-
-%package sandbox
-Summary: SELinux sandbox utilities
-Group:   System Environment/Base
-Requires: policycoreutils-python3 = %{version}-%{release}
-Requires: xorg-x11-server-Xephyr >= 1.14.1-2 /usr/bin/rsync /usr/bin/xmodmap
-Requires: openbox
-BuildRequires: libcap-ng-devel
-
-%description sandbox
-The policycoreutils-sandbox package contains the scripts to create graphical
-sandboxes
-
-%files sandbox
-%config(noreplace) %{_sysconfdir}/sysconfig/sandbox
-%{_datadir}/sandbox/sandboxX.sh
-%{_datadir}/sandbox/start
-%caps(cap_setpcap,cap_setuid,cap_fowner,cap_dac_override,cap_sys_admin,cap_sys_nice=pe) %{_sbindir}/seunshare
-%{_mandir}/man8/seunshare.8*
-%{_mandir}/man5/sandbox.5*
+%{_mandir}/man8/semodule_deps.8*
 
 %package newrole
 Summary: The newrole application for RBAC/MLS
@@ -395,47 +266,6 @@ or level of a logged in user.
 %attr(0755,root,root) %caps(cap_dac_read_search,cap_setpcap,cap_audit_write,cap_sys_admin,cap_fowner,cap_chown,cap_dac_override=pe) %{_bindir}/newrole
 %{_mandir}/man1/newrole.1.gz
 %config(noreplace) %{_sysconfdir}/pam.d/newrole
-
-%package gui
-Summary: SELinux configuration GUI
-Group: System Environment/Base
-Requires: policycoreutils-devel = %{version}-%{release}, policycoreutils-python = %{version}-%{release}
-Requires: gnome-python2 gnome-python2-gnome, pygtk2, pygtk2-libglade, gnome-python2-canvas
-Requires: usermode-gtk
-Requires: python >= 2.6
-Requires: policycoreutils-dbus = %{version}-%{release}
-BuildRequires: desktop-file-utils
-
-%description gui
-system-config-selinux is a utility for managing the SELinux environment
-
-%files gui
-%{_bindir}/system-config-selinux
-%{_bindir}/selinux-polgengui
-%{_datadir}/applications/sepolicy.desktop
-%{_datadir}/applications/system-config-selinux.desktop
-%{_datadir}/applications/selinux-polgengui.desktop
-%{_datadir}/icons/hicolor/24x24/apps/system-config-selinux.png
-%{_datadir}/pixmaps/system-config-selinux.png
-%dir %{_datadir}/system-config-selinux
-%{_datadir}/system-config-selinux/system-config-selinux.png
-%{_datadir}/system-config-selinux/*Page.py*
-%{_datadir}/system-config-selinux/html_util.py*
-%{_datadir}/system-config-selinux/polgengui.py*
-%{_datadir}/system-config-selinux/system-config-selinux.py*
-%{_datadir}/system-config-selinux/*.glade
-%{_datadir}/system-config-selinux/*.ui
-%{python2_sitelib}/sepolicy/gui.py*
-%{python2_sitelib}/sepolicy/sepolicy.glade
-%dir %{python2_sitelib}/sepolicy/help
-%{python2_sitelib}/sepolicy/help/*
-%{python3_sitelib}/sepolicy/gui.py*
-%{python3_sitelib}/sepolicy/sepolicy.glade
-%{_datadir}/icons/hicolor/*/apps/sepolicy.png
-%{_datadir}/pixmaps/sepolicy.png
-%{_mandir}/man8/system-config-selinux.8*
-%{_mandir}/man8/selinux-polgengui.8*
-%{_mandir}/man8/sepolicy-gui.8*
 
 %files -f %{name}.lang
 %{_sbindir}/restorecon
@@ -460,31 +290,22 @@ system-config-selinux is a utility for managing the SELinux environment
 %{_mandir}/man5/selinux_config.5.gz
 %{_mandir}/man5/sestatus.conf.5.gz
 %{_mandir}/man8/fixfiles.8*
-%{_mandir}/ru/man8/fixfiles.8*
 %{_mandir}/man8/load_policy.8*
-%{_mandir}/ru/man8/load_policy.8*
 %{_mandir}/man8/restorecon.8*
-%{_mandir}/ru/man8/restorecon.8*
 %{_mandir}/man8/restorecon_xattr.8*
 %{_mandir}/man8/semodule.8*
-%{_mandir}/ru/man8/semodule.8*
 %{_mandir}/man8/sestatus.8*
-%{_mandir}/ru/man8/sestatus.8*
 %{_mandir}/man8/setfiles.8*
-%{_mandir}/ru/man8/setfiles.8*
 %{_mandir}/man8/setsebool.8*
-%{_mandir}/ru/man8/setsebool.8*
 %{_mandir}/man1/secon.1*
-%{_mandir}/ru/man1/secon.1*
 %{_mandir}/man8/genhomedircon.8*
-%{!?_licensedir:%global license %%doc}
-%license policycoreutils-%{version}/COPYING
+%doc policycoreutils/COPYING
 %doc %{_usr}/share/doc/%{name}
 
 %package restorecond
 Summary: SELinux restorecond utilities
 Group:   System Environment/Base
-BuildRequires: systemd-units
+#BuildRequires: systemd-units
 
 %description restorecond
 The policycoreutils-restorecond package contains the restorecond service.
@@ -497,9 +318,7 @@ The policycoreutils-restorecond package contains the restorecond service.
 %{_sysconfdir}/xdg/autostart/restorecond.desktop
 %{_datadir}/dbus-1/services/org.selinux.Restorecond.service
 %{_mandir}/man8/restorecond.8*
-%{_mandir}/ru/man8/restorecond.8*
-%{!?_licensedir:%global license %%doc}
-%license policycoreutils-%{version}/COPYING
+%doc policycoreutils/COPYING
 
 %post restorecond
 %systemd_post restorecond.service
