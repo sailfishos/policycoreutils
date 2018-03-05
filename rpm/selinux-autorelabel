@@ -11,7 +11,6 @@ relabel_selinux() {
     AUTORELABEL=
     . /etc/selinux/config
     echo "0" > /sys/fs/selinux/enforce
-    [ -x /bin/plymouth ] && plymouth --hide-splash
 
     if [ "$AUTORELABEL" = "0" ]; then
 	echo
@@ -32,7 +31,7 @@ relabel_selinux() {
 	/sbin/fixfiles $FORCE restore
     fi
     rm -f  /.autorelabel
-    /usr/lib/dracut/dracut-initramfs-restore
+    #/usr/lib/dracut/dracut-initramfs-restore
     systemctl --force reboot
 }
 
