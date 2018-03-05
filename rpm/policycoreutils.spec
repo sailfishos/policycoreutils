@@ -30,6 +30,9 @@
 %define python3_sitearch /%{_libdir}/python3.?/site-packages
 %define python3_sitelib /%{_libdir}/python3.?/site-packages
 
+# tools expect several binaries to reside in /sbin. putting them there is easier until we symlink the whole /usr/sbin to /sbin
+%define _sbindir /sbin
+
 Summary: SELinux policy core utilities
 Name:    policycoreutils
 Version: 2.7
@@ -110,8 +113,8 @@ make -C restorecond PYTHON=%{__python3} DESTDIR="%{buildroot}" SBINDIR="%{buildr
 rm -rf %{buildroot}/%{_sysconfdir}/rc.d/init.d/restorecond
 
 rm -f %{buildroot}/usr/share/man/man8/open_init_pty.8
-rm -f %{buildroot}/usr/sbin/open_init_pty
-rm -f %{buildroot}/usr/sbin/run_init
+rm -f %{buildroot}%{_sbindir}/open_init_pty
+rm -f %{buildroot}%{_sbindir}/run_init
 rm -f %{buildroot}/etc/pam.d/run_init*
 rm -f %{buildroot}/usr/share/man/man8/sepolicy-gui.8*
 rm -f %{buildroot}/usr/share/man/man8/run_init.8*
