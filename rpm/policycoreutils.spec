@@ -26,7 +26,7 @@
 %global libselinuxver   2.7-6
 %global sepolgenver     2.7
 
-%global generatorsdir %{_prefix}/lib/systemd/system-generators
+%global generatorsdir /lib/systemd/system-generators
 %define python3_sitearch /%{_libdir}/python3.?/site-packages
 %define python3_sitelib /%{_libdir}/python3.?/site-packages
 

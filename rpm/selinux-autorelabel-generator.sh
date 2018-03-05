@@ -7,7 +7,7 @@
 # real default target.
 
 PATH=/usr/sbin:$PATH
-unitdir=/usr/lib/systemd/system
+unitdir=/lib/systemd/system
 
 # If invoked with no arguments (for testing) write to /tmp.
 earlydir="/tmp"
