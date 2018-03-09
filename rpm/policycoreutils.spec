@@ -224,7 +224,7 @@ by python 3 in an SELinux environment.
 Summary: SELinux policy core policy devel utilities
 Group:   System Environment/Base
 Requires: policycoreutils-python-utils = %{version}-%{release}
-Requires: /usr/bin/make dnf
+Requires: /usr/bin/make
 Requires: selinux-policy-devel
 
 %description devel
