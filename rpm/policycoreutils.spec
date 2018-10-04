@@ -21,10 +21,10 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 %global libauditver     2.1.3-4
-%global libsepolver     2.7-3
-%global libsemanagever  2.7-5
-%global libselinuxver   2.7-6
-%global sepolgenver     2.7
+%global libsepolver     2.8-3
+%global libsemanagever  2.8-5
+%global libselinuxver   2.8-6
+%global sepolgenver     2.8
 
 %global generatorsdir /lib/systemd/system-generators
 %define python3_sitearch /%{_libdir}/python3.?/site-packages
@@ -35,8 +35,8 @@
 
 Summary: SELinux policy core utilities
 Name:    policycoreutils
-Version: 2.7
-Release: 10%{?dist}
+Version: 2.8
+Release: 1%{?dist}
 License: GPLv2
 Group:   System Environment/Base
 Source: %{name}-%{version}.tar.bz2
