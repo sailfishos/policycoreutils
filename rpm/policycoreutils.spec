@@ -254,11 +254,10 @@ The policycoreutils-devel package contains the management tools use to develop p
 %{_bindir}/semodule_expand
 %{_bindir}/semodule_link
 %{_bindir}/semodule_unpackage
-%{_bindir}/semodule_deps
 %{_mandir}/man8/semodule_expand.8*
 %{_mandir}/man8/semodule_link.8*
 %{_mandir}/man8/semodule_unpackage.8*
-%{_mandir}/man8/semodule_deps.8*
+
 
 %package newrole
 Summary: The newrole application for RBAC/MLS
