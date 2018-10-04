@@ -47,6 +47,7 @@ Source17: selinux-autorelabel-mark.service
 Source18: selinux-autorelabel.target
 Source19: selinux-autorelabel-generator.sh
 Patch0: disable_awk_sandbox_policycoreutils.patch
+Patch1: fix_systemd_path.patch
 Obsoletes: policycoreutils < 2.0.61-2
 #Conflicts: filesystem < 3, selinux-policy-base < 3.13.1-138
 # initscripts < 9.66 shipped fedora-autorelabel services which are renamed to selinux-relabel
@@ -82,6 +83,7 @@ to switch roles.
 %prep
 %setup -q -n %{name}-%{version}/upstream
 %patch0 -p1
+%patch1 -p1
 
 %build
 make -C policycoreutils LSPP_PRIV=y SBINDIR="%{_sbindir}" LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro -Wl,-z,now" SEMODULE_PATH="/usr/sbin" LIBSEPOLA="%{_libdir}/libsepol.a" all
@@ -110,7 +112,7 @@ make -C dbus PYTHON=%{__python3} DESTDIR="%{buildroot}" SBINDIR="%{_sbindir}" LI
 
 make -C semodule-utils PYTHON=%{__python3} DESTDIR="%{buildroot}" SBINDIR="%{_sbindir}" LIBDIR="%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a" install
 
-make -C restorecond PYTHON=%{__python3} DESTDIR="%{buildroot}" SBINDIR="%{_sbindir}" LIBDIR="%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a" install
+make -C restorecond PYTHON=%{__python3} DESTDIR="%{buildroot}" SBINDIR="%{_sbindir}" LIBDIR="%{_libdir}" SYSTEMDDIR="%{_unitdir}" LIBSEPOLA="%{_libdir}/libsepol.a" install
 
 
 # Systemd
