@@ -21,9 +21,9 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 %global libauditver     2.1.3-4
-%global libsepolver     2.8-3
-%global libsemanagever  2.8-5
-%global libselinuxver   2.8-6
+%global libsepolver     2.8-1
+%global libsemanagever  2.8-1
+%global libselinuxver   2.8-1
 %global sepolgenver     2.8
 
 %global generatorsdir /lib/systemd/system-generators
