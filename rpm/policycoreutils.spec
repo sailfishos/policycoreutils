@@ -20,15 +20,21 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-%global libauditver     2.1.3-4
-%global libsepolver     2.8-1
-%global libsemanagever  2.8-1
-%global libselinuxver   2.8-1
+%global libauditver     2.1.3
+%global libsepolver     2.8
+%global libsemanagever  2.8
+%global libselinuxver   2.8
 %global sepolgenver     2.8
 
 %global generatorsdir /lib/systemd/system-generators
+
+%if ! %{defined python3_sitearch}
 %define python3_sitearch /%{_libdir}/python3.?/site-packages
+%endif
+
+%if ! %{defined python3_sitelib}
 %define python3_sitelib /%{_libdir}/python3.?/site-packages
+%endif
 
 # tools expect several binaries to reside in /sbin. putting them there is easier until we symlink the whole /usr/sbin to /sbin
 %define _sbindir /sbin
