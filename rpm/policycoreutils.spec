@@ -61,13 +61,26 @@ Obsoletes: policycoreutils < 2.0.61-2
 Provides: /sbin/fixfiles
 Provides: /sbin/restorecon
 
-BuildRequires: pam-devel libcap-ng-devel libsepol-static >= %{libsepolver} libsemanage-static >= %{libsemanagever} libselinux-devel >= %{libselinuxver}  libcap-devel audit-libs-devel >=  %{libauditver} gettext
-BuildRequires: dbus-devel dbus-glib-devel
+BuildRequires: audit-libs-devel >=  %{libauditver}
+BuildRequires: dbus-devel
+BuildRequires: dbus-glib-devel
+BuildRequires: gettext
+BuildRequires: libcap-ng-devel
+BuildRequires: libsepol-static >= %{libsepolver}
+BuildRequires: libsemanage-static >= %{libsemanagever}
+BuildRequires: libselinux-devel >= %{libselinuxver}
+BuildRequires: libcap-devel
+BuildRequires: pam-devel
+BuildRequires: python
 BuildRequires: python3-devel
 BuildRequires: systemd
-# we don't build python2 modules, but make clean expects python2 (could be patched out though)
-BuildRequires: python
-Requires: util-linux grep gawk diffutils rpm sed
+
+Requires: util-linux
+Requires: grep
+Requires: gawk
+Requires: diffutils
+Requires: rpm
+Requires: sed
 Requires: libsepol >= %{libsepolver} coreutils libselinux-utils >=  %{libselinuxver}
 
 %description
