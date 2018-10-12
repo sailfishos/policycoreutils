@@ -54,10 +54,6 @@ Source18: selinux-autorelabel.target
 Source19: selinux-autorelabel-generator.sh
 Patch0: disable_awk_sandbox_policycoreutils.patch
 Patch1: fix_systemd_path.patch
-Obsoletes: policycoreutils < 2.0.61-2
-#Conflicts: filesystem < 3, selinux-policy-base < 3.13.1-138
-# initscripts < 9.66 shipped fedora-autorelabel services which are renamed to selinux-relabel
-#Conflicts: initscripts < 9.66
 Provides: /sbin/fixfiles
 Provides: /sbin/restorecon
 
@@ -175,7 +171,6 @@ sed -i '1s%\(#! *\)/usr/bin/python\([^3].*\|\)$%\1%{__python3}\2%' \
 %package python-utils
 Summary:    SELinux policy core python utilities
 Requires:   policycoreutils-python3 = %{version}-%{release}
-Obsoletes:  policycoreutils-python <= 2.4-4
 
 %description python-utils
 The policycoreutils-python-utils package contains the management tools use to manage
