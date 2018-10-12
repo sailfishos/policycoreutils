@@ -42,7 +42,7 @@
 Summary: SELinux policy core utilities
 Name:    policycoreutils
 Version: 2.8
-Release: 1%{?dist}
+Release: 1
 License: GPLv2
 Group:   System Environment/Base
 Source: %{name}-%{version}.tar.bz2
