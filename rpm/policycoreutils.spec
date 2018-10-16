@@ -273,7 +273,20 @@ The policycoreutils-devel package contains the management tools use to develop p
 %{_mandir}/man8/semodule_expand.8*
 %{_mandir}/man8/semodule_link.8*
 %{_mandir}/man8/semodule_unpackage.8*
-
+%{_mandir}/man5/selinux_config.5.gz
+%{_mandir}/man5/sestatus.conf.5.gz
+%{_mandir}/man8/fixfiles.8*
+%{_mandir}/man8/load_policy.8*
+%{_mandir}/man8/restorecon.8*
+%{_mandir}/man8/restorecon_xattr.8*
+%{_mandir}/man8/semodule.8*
+%{_mandir}/man8/sestatus.8*
+%{_mandir}/man8/setfiles.8*
+%{_mandir}/man8/setsebool.8*
+%{_mandir}/man1/secon.1*
+%{_mandir}/man8/genhomedircon.8*
+%{_mandir}/man1/newrole.1.gz
+%{_mandir}/man8/restorecond.8*
 
 %package newrole
 Summary: The newrole application for RBAC/MLS
@@ -286,7 +299,6 @@ or level of a logged in user.
 
 %files newrole
 %attr(0755,root,root) %caps(cap_dac_read_search,cap_setpcap,cap_audit_write,cap_sys_admin,cap_fowner,cap_chown,cap_dac_override=pe) %{_bindir}/newrole
-%{_mandir}/man1/newrole.1.gz
 %config(noreplace) %{_sysconfdir}/pam.d/newrole
 
 %files -f %{name}.lang
@@ -309,18 +321,6 @@ or level of a logged in user.
 %{generatorsdir}/selinux-autorelabel-generator.sh
 %config(noreplace) %{_sysconfdir}/sestatus.conf
 # selinux-policy Requires: policycoreutils, so we own this set of directories and our files within them
-%{_mandir}/man5/selinux_config.5.gz
-%{_mandir}/man5/sestatus.conf.5.gz
-%{_mandir}/man8/fixfiles.8*
-%{_mandir}/man8/load_policy.8*
-%{_mandir}/man8/restorecon.8*
-%{_mandir}/man8/restorecon_xattr.8*
-%{_mandir}/man8/semodule.8*
-%{_mandir}/man8/sestatus.8*
-%{_mandir}/man8/setfiles.8*
-%{_mandir}/man8/setsebool.8*
-%{_mandir}/man1/secon.1*
-%{_mandir}/man8/genhomedircon.8*
 %doc policycoreutils/COPYING
 %doc %{_usr}/share/doc/%{name}
 
@@ -339,7 +339,6 @@ The policycoreutils-restorecond package contains the restorecond service.
 %config(noreplace) %{_sysconfdir}/selinux/restorecond_user.conf
 %{_sysconfdir}/xdg/autostart/restorecond.desktop
 %{_datadir}/dbus-1/services/org.selinux.Restorecond.service
-%{_mandir}/man8/restorecond.8*
 %doc policycoreutils/COPYING
 
 %post restorecond
