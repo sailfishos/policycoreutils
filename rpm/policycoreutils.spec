@@ -36,9 +36,6 @@
 %define python3_sitelib /%{_libdir}/python3.?/site-packages
 %endif
 
-# tools expect several binaries to reside in /sbin. putting them there is easier until we symlink the whole /usr/sbin to /sbin
-%define _sbindir /sbin
-
 Summary: SELinux policy core utilities
 Name:    policycoreutils
 Version: 2.8
