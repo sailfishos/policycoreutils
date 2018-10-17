@@ -74,7 +74,9 @@ Requires: gawk
 Requires: diffutils
 Requires: rpm
 Requires: sed
-Requires: libsepol >= %{libsepolver} coreutils libselinux-utils >=  %{libselinuxver}
+Requires: libsepol >= %{libsepolver}
+Requires: coreutils
+Requires: libselinux-utils >=  %{libselinuxver}
 
 %description
 Security-enhanced Linux is a feature of the Linux® kernel and a number
@@ -98,7 +100,7 @@ to switch roles.
 %patch1 -p1
 
 %build
-make -C policycoreutils LSPP_PRIV=y SBINDIR="%{_sbindir}" LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro -Wl,-z,now" SEMODULE_PATH="/usr/sbin" LIBSEPOLA="%{_libdir}/libsepol.a" all
+make -C policycoreutils LSPP_PRIV=y SBINDIR="%{_sbindir}" LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro -Wl,-z,now" SEMODULE_PATH="%{_sbindir}" LIBSEPOLA="%{_libdir}/libsepol.a" all
 
 make -C python SBINDIR="%{_sbindir}" LSPP_PRIV=y LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro" LIBSEPOLA="%{_libdir}/libsepol.a" all
 
@@ -116,7 +118,7 @@ mkdir -p %{buildroot}%{_mandir}/man5
 mkdir -p %{buildroot}%{_mandir}/man8
 %{__mkdir} -p %{buildroot}/%{_usr}/share/doc/%{name}/
 
-make -C policycoreutils LSPP_PRIV=y  DESTDIR="%{buildroot}" SBINDIR="%{_sbindir}" LIBDIR="%{_libdir}" SEMODULE_PATH="/usr/sbin" LIBSEPOLA="%{_libdir}/libsepol.a" install
+make -C policycoreutils LSPP_PRIV=y  DESTDIR="%{buildroot}" SBINDIR="%{_sbindir}" LIBDIR="%{_libdir}" SEMODULE_PATH="%{_sbindir}" LIBSEPOLA="%{_libdir}/libsepol.a" install
 
 make -C python PYTHON=%{__python3} DESTDIR="%{buildroot}" SBINDIR="%{_sbindir}" LIBDIR="%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a" install
 
@@ -178,13 +180,8 @@ an SELinux environment.
 %{_bindir}/chcat
 %{_bindir}/audit2allow
 %{_bindir}/audit2why
-%{_mandir}/man1/audit2allow.1*
 %{_bindir}/semodule_package
-%{_mandir}/man8/semodule_package.8*
-%{_mandir}/man1/audit2why.1*
 %{_sysconfdir}/dbus-1/system.d/org.selinux.conf
-%{_mandir}/man8/chcat.8*
-%{_mandir}/man8/semanage*.8*
 %{_datadir}/bash-completion/completions/semanage
 %{_datadir}/bash-completion/completions/setsebool
 
@@ -284,6 +281,11 @@ The policycoreutils-devel package contains the management tools use to develop p
 %{_mandir}/man8/genhomedircon.8*
 %{_mandir}/man1/newrole.1.gz
 %{_mandir}/man8/restorecond.8*
+%{_mandir}/man1/audit2allow.1*
+%{_mandir}/man8/semodule_package.8*
+%{_mandir}/man1/audit2why.1*
+%{_mandir}/man8/chcat.8*
+%{_mandir}/man8/semanage*.8*
 
 %package newrole
 Summary: The newrole application for RBAC/MLS
