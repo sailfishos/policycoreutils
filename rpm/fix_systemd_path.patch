@@ -1,0 +1,15 @@
+diff --git a/restorecond/Makefile b/restorecond/Makefile
+index 25be18d4..65bd1775 100644
+--- a/restorecond/Makefile
++++ b/restorecond/Makefile
+@@ -51,8 +51,8 @@ install: all
+ 	install -m 644 restorecond.desktop $(DESTDIR)$(AUTOSTARTDIR)/restorecond.desktop
+ 	-mkdir -p $(DESTDIR)$(DBUSSERVICEDIR)
+ 	install -m 600 org.selinux.Restorecond.service  $(DESTDIR)$(DBUSSERVICEDIR)/org.selinux.Restorecond.service
+-	-mkdir -p $(DESTDIR)$(SYSTEMDDIR)/system
+-	install -m 644 restorecond.service $(DESTDIR)$(SYSTEMDDIR)/system/
++	-mkdir -p $(DESTDIR)$(SYSTEMDDIR)/
++	install -m 644 restorecond.service $(DESTDIR)$(SYSTEMDDIR)/
+ relabel: install
+ 	/sbin/restorecon $(DESTDIR)$(SBINDIR)/restorecond 
+ 

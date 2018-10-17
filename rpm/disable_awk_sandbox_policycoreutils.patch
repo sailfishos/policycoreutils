@@ -1,0 +1,13 @@
+diff --git a/policycoreutils/setfiles/Makefile b/policycoreutils/setfiles/Makefile
+index e9432768..449bd7f7 100644
+--- a/policycoreutils/setfiles/Makefile
++++ b/policycoreutils/setfiles/Makefile
+@@ -4,7 +4,7 @@ SBINDIR ?= /sbin
+ MANDIR = $(PREFIX)/share/man
+ AUDITH ?= $(shell test -f /usr/include/libaudit.h && echo y)
+ 
+-ABORT_ON_ERRORS=$(shell grep "^\#define ABORT_ON_ERRORS" setfiles.c | awk -S '{ print $$3 }')
++ABORT_ON_ERRORS=$(shell grep "^\#define ABORT_ON_ERRORS" setfiles.c | awk '{ print $$3 }')
+ 
+ CFLAGS ?= -g -Werror -Wall -W
+ override LDLIBS += -lselinux -lsepol
