@@ -138,8 +138,8 @@ rm -f %{buildroot}%{_sbindir}/run_init
 rm -f %{buildroot}/etc/pam.d/run_init*
 rm -f %{buildroot}/usr/share/man/man8/sepolicy-gui.8*
 rm -f %{buildroot}/usr/share/man/man8/run_init.8*
-rm -f %{buildroot}/usr/lib/python3.4/site-packages/sepolicy/sepolicy.glade
-rm -f %{buildroot}/usr/lib/python3.4/site-packages/sepolicy/gui.py
+rm -f %{buildroot}/usr/lib/python3.*/site-packages/sepolicy/sepolicy.glade
+rm -f %{buildroot}/usr/lib/python3.*/site-packages/sepolicy/gui.py
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1328825
 mkdir   -m 755 -p %{buildroot}/%{_unitdir}/basic.target.wants/
