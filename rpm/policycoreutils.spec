@@ -49,8 +49,9 @@ Source16: selinux-autorelabel.service
 Source17: selinux-autorelabel-mark.service
 Source18: selinux-autorelabel.target
 Source19: selinux-autorelabel-generator.sh
-Patch0: disable_awk_sandbox_policycoreutils.patch
-Patch1: fix_systemd_path.patch
+Patch0:   0001-disable_awk_sandbox_policycoreutils.patch
+Patch1:   0002-fix_systemd_path.patch
+Patch2:   0003-Change-ausearch-path-to-usr-sbin.patch
 Provides: /sbin/fixfiles
 Provides: /sbin/restorecon
 
@@ -98,6 +99,7 @@ to switch roles.
 %setup -q -n %{name}-%{version}/upstream
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %build
 make -C policycoreutils LSPP_PRIV=y SBINDIR="%{_sbindir}" LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro -Wl,-z,now" SEMODULE_PATH="%{_sbindir}" LIBSEPOLA="%{_libdir}/libsepol.a" all
