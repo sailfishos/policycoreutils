@@ -300,7 +300,7 @@ or level of a logged in user.
 
 %files newrole
 %attr(0755,root,root) %caps(cap_dac_read_search,cap_setpcap,cap_audit_write,cap_sys_admin,cap_fowner,cap_chown,cap_dac_override=pe) %{_bindir}/newrole
-%config(noreplace) %{_sysconfdir}/pam.d/newrole
+%config %{_sysconfdir}/pam.d/newrole
 
 %files -f %{name}.lang
 %{_sbindir}/restorecon
@@ -320,7 +320,7 @@ or level of a logged in user.
 %{_unitdir}/selinux-autorelabel.service
 %{_unitdir}/selinux-autorelabel.target
 %{generatorsdir}/selinux-autorelabel-generator.sh
-%config(noreplace) %{_sysconfdir}/sestatus.conf
+%config %{_sysconfdir}/sestatus.conf
 # selinux-policy Requires: policycoreutils, so we own this set of directories and our files within them
 %doc policycoreutils/COPYING
 %doc %{_usr}/share/doc/%{name}
@@ -336,8 +336,8 @@ The policycoreutils-restorecond package contains the restorecond service.
 %files restorecond
 %{_sbindir}/restorecond
 %{_unitdir}/restorecond.service
-%config(noreplace) %{_sysconfdir}/selinux/restorecond.conf
-%config(noreplace) %{_sysconfdir}/selinux/restorecond_user.conf
+%config %{_sysconfdir}/selinux/restorecond.conf
+%config %{_sysconfdir}/selinux/restorecond_user.conf
 %{_sysconfdir}/xdg/autostart/restorecond.desktop
 %{_datadir}/dbus-1/services/org.selinux.Restorecond.service
 %doc policycoreutils/COPYING
