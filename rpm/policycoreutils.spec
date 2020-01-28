@@ -21,10 +21,9 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 %global libauditver     2.1.3
-%global libsepolver     2.8
-%global libsemanagever  2.8
-%global libselinuxver   2.8
-%global sepolgenver     2.8
+%global libsepolver     3.0
+%global libsemanagever  3.0
+%global libselinuxver   3.0
 
 %global generatorsdir /lib/systemd/system-generators
 
@@ -38,10 +37,9 @@
 
 Summary: SELinux policy core utilities
 Name:    policycoreutils
-Version: 2.8
+Version: 3.0
 Release: 1
 License: GPLv2
-Group:   System Environment/Base
 Source: %{name}-%{version}.tar.bz2
 URL:     https://github.com/SELinuxProject
 Source15: selinux-autorelabel
@@ -96,10 +94,7 @@ load_policy to load policies, setfiles to label filesystems, newrole
 to switch roles.
 
 %prep
-%setup -q -n %{name}-%{version}/upstream
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
+%autosetup -p1 -n %{name}-%{version}/upstream
 
 %build
 make -C policycoreutils LSPP_PRIV=y SBINDIR="%{_sbindir}" LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro -Wl,-z,now" SEMODULE_PATH="%{_sbindir}" LIBSEPOLA="%{_libdir}/libsepol.a" all
@@ -135,11 +130,14 @@ make -C restorecond PYTHON=%{__python3} DESTDIR="%{buildroot}" SBINDIR="%{_sbind
 rm -rf %{buildroot}/%{_sysconfdir}/rc.d/init.d/restorecond
 
 rm -f %{buildroot}/usr/share/man/man8/open_init_pty.8
+rm -f %{buildroot}/usr/share/man/ru/man8/open_init_pty.8
 rm -f %{buildroot}%{_sbindir}/open_init_pty
 rm -f %{buildroot}%{_sbindir}/run_init
 rm -f %{buildroot}/etc/pam.d/run_init*
 rm -f %{buildroot}/usr/share/man/man8/sepolicy-gui.8*
+rm -f %{buildroot}/usr/share/man/ru/man8/sepolicy-gui.8*
 rm -f %{buildroot}/usr/share/man/man8/run_init.8*
+rm -f %{buildroot}/usr/share/man/ru/man8/run_init.8*
 rm -f %{buildroot}/usr/lib/python3.*/site-packages/sepolicy/sepolicy.glade
 rm -f %{buildroot}/usr/lib/python3.*/site-packages/sepolicy/gui.py
 
@@ -204,7 +202,6 @@ an SELinux environment.
 
 %package python3
 Summary: SELinux policy core python3 interfaces
-Group:   System Environment/Base
 Requires:policycoreutils = %{version}-%{release}
 Requires:libsemanage-python3 >= %{libsemanagever} libselinux-python3 libcgroup
 Requires:audit-libs-python3 >=  %{libauditver}
@@ -238,7 +235,6 @@ by python 3 in an SELinux environment.
 
 %package devel
 Summary: SELinux policy core policy devel utilities
-Group:   System Environment/Base
 Requires: policycoreutils-python-utils = %{version}-%{release}
 Requires: /usr/bin/make
 Requires: selinux-policy-devel
@@ -254,44 +250,74 @@ The policycoreutils-devel package contains the management tools use to develop p
 /var/lib/sepolgen/perm_map
 %{_bindir}/sepolicy
 %{_mandir}/man8/sepolgen.8*
+%{_mandir}/ru/man8/sepolgen.8*
 %{_mandir}/man8/sepolicy-booleans.8*
+%{_mandir}/ru/man8/sepolicy-booleans.8*
 %{_mandir}/man8/sepolicy-generate.8*
+%{_mandir}/ru/man8/sepolicy-generate.8*
 %{_mandir}/man8/sepolicy-interface.8*
+%{_mandir}/ru/man8/sepolicy-interface.8*
 %{_mandir}/man8/sepolicy-network.8*
+%{_mandir}/ru/man8/sepolicy-network.8*
 %{_mandir}/man8/sepolicy.8*
+%{_mandir}/ru/man8/sepolicy.8*
 %{_mandir}/man8/sepolicy-communicate.8*
+%{_mandir}/ru/man8/sepolicy-communicate.8*
 %{_mandir}/man8/sepolicy-manpage.8*
+%{_mandir}/ru/man8/sepolicy-manpage.8*
 %{_mandir}/man8/sepolicy-transition.8*
+%{_mandir}/ru/man8/sepolicy-transition.8*
 %{_usr}/share/bash-completion/completions/sepolicy
 %{_bindir}/semodule_expand
 %{_bindir}/semodule_link
 %{_bindir}/semodule_unpackage
 %{_mandir}/man8/semodule_expand.8*
+%{_mandir}/ru/man8/semodule_expand.8*
 %{_mandir}/man8/semodule_link.8*
+%{_mandir}/ru/man8/semodule_link.8*
 %{_mandir}/man8/semodule_unpackage.8*
+%{_mandir}/ru/man8/semodule_unpackage.8*
 %{_mandir}/man5/selinux_config.5.gz
+%{_mandir}/ru/man5/selinux_config.5.gz
 %{_mandir}/man5/sestatus.conf.5.gz
+%{_mandir}/ru/man5/sestatus.conf.5.gz
 %{_mandir}/man8/fixfiles.8*
+%{_mandir}/ru/man8/fixfiles.8*
 %{_mandir}/man8/load_policy.8*
+%{_mandir}/ru/man8/load_policy.8*
 %{_mandir}/man8/restorecon.8*
+%{_mandir}/ru/man8/restorecon.8*
 %{_mandir}/man8/restorecon_xattr.8*
+%{_mandir}/ru/man8/restorecon_xattr.8*
 %{_mandir}/man8/semodule.8*
+%{_mandir}/ru/man8/semodule.8*
 %{_mandir}/man8/sestatus.8*
+%{_mandir}/ru/man8/sestatus.8*
 %{_mandir}/man8/setfiles.8*
+%{_mandir}/ru/man8/setfiles.8*
 %{_mandir}/man8/setsebool.8*
+%{_mandir}/ru/man8/setsebool.8*
 %{_mandir}/man1/secon.1*
+%{_mandir}/ru/man1/secon.1*
 %{_mandir}/man8/genhomedircon.8*
+%{_mandir}/ru/man8/genhomedircon.8*
 %{_mandir}/man1/newrole.1.gz
+%{_mandir}/ru/man1/newrole.1.gz
 %{_mandir}/man8/restorecond.8*
+%{_mandir}/ru/man8/restorecond.8*
 %{_mandir}/man1/audit2allow.1*
+%{_mandir}/ru/man1/audit2allow.1*
 %{_mandir}/man8/semodule_package.8*
+%{_mandir}/ru/man8/semodule_package.8*
 %{_mandir}/man1/audit2why.1*
+%{_mandir}/ru/man1/audit2why.1*
 %{_mandir}/man8/chcat.8*
+%{_mandir}/ru/man8/chcat.8*
 %{_mandir}/man8/semanage*.8*
+%{_mandir}/ru/man8/semanage*.8*
 
 %package newrole
 Summary: The newrole application for RBAC/MLS
-Group: System Environment/Base
 Requires: policycoreutils = %{version}-%{release}
 
 %description newrole
@@ -322,13 +348,11 @@ or level of a logged in user.
 %{generatorsdir}/selinux-autorelabel-generator.sh
 %config %{_sysconfdir}/sestatus.conf
 # selinux-policy Requires: policycoreutils, so we own this set of directories and our files within them
-%doc policycoreutils/COPYING
+%license policycoreutils/COPYING
 %doc %{_usr}/share/doc/%{name}
 
 %package restorecond
 Summary: SELinux restorecond utilities
-Group:   System Environment/Base
-#BuildRequires: systemd-units
 
 %description restorecond
 The policycoreutils-restorecond package contains the restorecond service.
@@ -340,7 +364,7 @@ The policycoreutils-restorecond package contains the restorecond service.
 %config %{_sysconfdir}/selinux/restorecond_user.conf
 %{_sysconfdir}/xdg/autostart/restorecond.desktop
 %{_datadir}/dbus-1/services/org.selinux.Restorecond.service
-%doc policycoreutils/COPYING
+%license policycoreutils/COPYING
 
 %post restorecond
 %systemd_post restorecond.service
