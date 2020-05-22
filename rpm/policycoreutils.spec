@@ -27,14 +27,6 @@
 
 %global generatorsdir /lib/systemd/system-generators
 
-%if ! %{defined python3_sitearch}
-%define python3_sitearch /%{_libdir}/python3.?/site-packages
-%endif
-
-%if ! %{defined python3_sitelib}
-%define python3_sitelib /%{_libdir}/python3.?/site-packages
-%endif
-
 Summary: SELinux policy core utilities
 Name:    policycoreutils
 Version: 3.0
@@ -214,9 +206,9 @@ The policycoreutils-python3 package contains the interfaces that can be used
 by python 3 in an SELinux environment.
 
 %files python3
-%{python3_sitearch}/seobject.py*
-%{python3_sitearch}/__pycache__
-%{python3_sitearch}/sepolgen
+%{python3_sitelib}/seobject.py*
+%{python3_sitelib}/__pycache__
+%{python3_sitelib}/sepolgen
 %dir %{python3_sitelib}/sepolicy
 %{python3_sitelib}/sepolicy/templates
 %dir %{python3_sitelib}/sepolicy/help
