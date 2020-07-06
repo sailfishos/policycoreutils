@@ -55,7 +55,6 @@ BuildRequires: libsemanage-static >= %{libsemanagever}
 BuildRequires: libselinux-devel >= %{libselinuxver}
 BuildRequires: libcap-devel
 BuildRequires: pam-devel
-BuildRequires: python
 BuildRequires: python3-devel
 BuildRequires: systemd
 
