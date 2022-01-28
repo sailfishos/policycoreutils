@@ -211,7 +211,7 @@ an SELinux environment.
 %{?python_provide:%python_provide python3-policycoreutils}
 Summary: SELinux policy core python3 interfaces
 Requires:policycoreutils = %{version}-%{release}
-Requires:libsemanage-python3 >= %{libsemanagever} libselinux-python3 libcgroup
+Requires:libsemanage-python3 >= %{libsemanagever} libselinux-python3
 # no python3-audit-libs yet
 Requires:audit-libs-python3 >=  %{libauditver}
 Requires: checkpolicy
