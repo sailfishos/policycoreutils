@@ -21,15 +21,15 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 %global libauditver     2.8
-%global libsepolver     3.1
-%global libsemanagever  3.1
-%global libselinuxver   3.1
+%global libsepolver     3.7
+%global libsemanagever  3.7
+%global libselinuxver   3.7
 
 %global generatorsdir %{_prefix}/lib/systemd/system-generators
 
 Summary: SELinux policy core utilities
 Name:    policycoreutils
-Version: 3.1
+Version: 3.7
 Release: 1
 License: GPLv2
 Source: %{name}-%{version}.tar.bz2
@@ -49,12 +49,13 @@ BuildRequires: pkgconfig(libcap)
 BuildRequires: pkgconfig(dbus-1)
 BuildRequires: pkgconfig(libcap-ng)
 BuildRequires: pkgconfig(libselinux) >= %{libselinuxver}
+BuildRequires: pkgconfig(libsemanage) >= %{libsemanagever}
 BuildRequires: pkgconfig(systemd)
 BuildRequires: pam-devel
 BuildRequires: gettext
 BuildRequires: flex
-BuildRequires: libsemanage-static >= %{libsemanagever}
 BuildRequires: libsepol-static >= %{libsepolver}
+BuildRequires: python3-pip
 
 Requires: util-linux
 Requires: grep
@@ -89,16 +90,13 @@ to switch roles.
 
 %build
 export PYTHON=%{__python3}
-make -C policycoreutils LSPP_PRIV=y SBINDIR="%{_sbindir}" \
-     LIBDIR="%{_libdir}" CFLAGS="%{optflags} -fPIE" \
-     LDFLAGS="-pie -Wl,-z,relro -Wl,-z,now" \
-     SEMODULE_PATH="%{_sbindir}" LIBSEPOLA="%{_libdir}/libsepol.a" all
 
-for subdir in python dbus semodule-utils restorecond ; do
-    %{__make} %{_make_output_sync} %{?_smp_mflags} \
-         -C $subdir SBINDIR="%{_sbindir}" LSPP_PRIV=y LIBDIR="%{_libdir}" \
-         CFLAGS="%{optflags} -fPIE" LDFLAGS="-pie -Wl,-z,relro" LIBSEPOLA="%{_libdir}/libsepol.a" all
-done
+# we skip gui and sandbox
+make -C policycoreutils SBINDIR="%{_sbindir}" LSPP_PRIV=y LIBDIR="%{_libdir}" SEMODULE_PATH="/usr/sbin" LIBSEPOLA="%{_libdir}/libsepol.a" all
+make -C python SBINDIR="%{_sbindir}" LSPP_PRIV=y LIBDIR="%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a" all
+make -C dbus SBINDIR="%{_sbindir}" LSPP_PRIV=y LIBDIR="%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a" all
+make -C semodule-utils SBINDIR="%{_sbindir}" LSPP_PRIV=y LIBDIR="%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a" all
+make -C restorecond SBINDIR="%{_sbindir}" LSPP_PRIV=y LIBDIR="%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a" all
 
 %install
 mkdir -p %{buildroot}%{_bindir}
@@ -108,34 +106,21 @@ mkdir -p %{buildroot}%{_mandir}/man5
 mkdir -p %{buildroot}%{_mandir}/man8
 %{__mkdir} -p %{buildroot}/%{_usr}/share/doc/%{name}/
 
-%{__make} install DESTDIR=%{?buildroot} INSTALL="%{__install} -p" \
-     -C policycoreutils \
-     LSPP_PRIV=y SBINDIR="%{_sbindir}" \
-     LIBDIR="%{_libdir}" \
-     SEMODULE_PATH="/usr/sbin" \
-     LIBSEPOLA="%{_libdir}/libsepol.a"
-
-for subdir in python dbus semodule-utils restorecond ; do
-    %{__make} install DESTDIR=%{?buildroot} INSTALL="%{__install} -p" \
-     -C $subdir \
-     PYTHON=%{__python3} \
-     SBINDIR="%{_sbindir}" \
-     LIBDIR="%{_libdir}" \
-     LIBSEPOLA="%{_libdir}/libsepol.a"
-done
+%make_install -C policycoreutils LSPP_PRIV=y SBINDIR="%{_sbindir}" LIBDIR="%{_libdir}" SEMODULE_PATH="/usr/sbin" LIBSEPOLA="%{_libdir}/libsepol.a"
+%make_install -C python PYTHON=%{__python3} SBINDIR="%{_sbindir}" LIBDIR="%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a"
+%make_install -C dbus PYTHON=%{__python3} SBINDIR="%{_sbindir}" LIBDIR="%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a"
+%make_install -C semodule-utils PYTHON=%{__python3} SBINDIR="%{_sbindir}" LIBDIR="%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a"
+%make_install -C restorecond PYTHON=%{__python3} SBINDIR="%{_sbindir}" LIBDIR="%{_libdir}" LIBSEPOLA="%{_libdir}/libsepol.a"
 
 # Systemd
 rm -rf %{buildroot}/%{_sysconfdir}/rc.d/init.d/restorecond
 
 rm -f %{buildroot}/usr/share/man/man8/open_init_pty.8
-rm -f %{buildroot}/usr/share/man/ru/man8/open_init_pty.8
 rm -f %{buildroot}%{_sbindir}/open_init_pty
 rm -f %{buildroot}%{_sbindir}/run_init
 rm -f %{buildroot}/etc/pam.d/run_init*
 rm -f %{buildroot}/usr/share/man/man8/sepolicy-gui.8*
-rm -f %{buildroot}/usr/share/man/ru/man8/sepolicy-gui.8*
 rm -f %{buildroot}/usr/share/man/man8/run_init.8*
-rm -f %{buildroot}/usr/share/man/ru/man8/run_init.8*
 rm -f %{buildroot}/usr/lib/python3.*/site-packages/sepolicy/sepolicy.glade
 rm -f %{buildroot}/usr/lib/python3.*/site-packages/sepolicy/gui.py
 
@@ -163,7 +148,8 @@ sed -i '1s%\(#! *\)/usr/bin/python\([^3].*\|\)$%\1%{__python3}\2%' \
     %{buildroot}%{_bindir}/sepolgen{,-ifgen} \
     %nil
 
-%find_lang %{name}
+%find_lang policycoreutils
+%find_lang selinux-python
 
 %package python3-utils
 Summary:    SELinux policy core python utilities
@@ -180,14 +166,10 @@ an SELinux environment.
 %{_bindir}/audit2allow
 %{_bindir}/audit2why
 %{_mandir}/man1/audit2allow.1*
-%{_mandir}/ru/man1/audit2allow.1*
 %{_mandir}/man1/audit2why.1*
-%{_mandir}/ru/man1/audit2why.1*
 %{_sysconfdir}/dbus-1/system.d/org.selinux.conf
 %{_mandir}/man8/chcat.8*
-%{_mandir}/ru/man8/chcat.8*
 %{_mandir}/man8/semanage*.8*
-%{_mandir}/ru/man8/semanage*.8*
 %{_datadir}/bash-completion/completions/semanage
 
 %package dbus
@@ -222,7 +204,7 @@ BuildArch: noarch
 The policycoreutils-python3 package contains the interfaces that can be used
 by python 3 in an SELinux environment.
 
-%files python3
+%files -f selinux-python.lang python3
 %{python3_sitelib}/seobject.py*
 %{python3_sitelib}/__pycache__
 %{python3_sitelib}/sepolgen
@@ -259,7 +241,6 @@ The policycoreutils-devel package contains the management tools use to develop p
 /var/lib/sepolgen/perm_map
 %{_bindir}/sepolicy
 %{_mandir}/man8/sepolgen.8*
-%{_mandir}/ru/man8/sepolgen.8*
 %{_mandir}/man8/sepolicy-booleans.8*
 %{_mandir}/man8/sepolicy-generate.8*
 %{_mandir}/man8/sepolicy-interface.8*
@@ -268,7 +249,6 @@ The policycoreutils-devel package contains the management tools use to develop p
 %{_mandir}/man8/sepolicy-communicate.8*
 %{_mandir}/man8/sepolicy-manpage.8*
 %{_mandir}/man8/sepolicy-transition.8*
-%{_mandir}/ru/man8/sepolicy*.8*
 %{_usr}/share/bash-completion/completions/sepolicy
 
 %package newrole
@@ -282,7 +262,6 @@ or level of a logged in user.
 %files newrole
 %attr(0755,root,root) %caps(cap_dac_read_search,cap_setpcap,cap_audit_write,cap_sys_admin,cap_fowner,cap_chown,cap_dac_override=pe) %{_bindir}/newrole
 %{_mandir}/man1/newrole.1.gz
-%{_mandir}/ru/man1/newrole.1.gz
 %config %{_sysconfdir}/pam.d/newrole
 
 %files -f %{name}.lang
@@ -300,6 +279,7 @@ or level of a logged in user.
 %{_bindir}/semodule_link
 %{_bindir}/semodule_package
 %{_bindir}/semodule_unpackage
+%{_bindir}/sestatus
 %{_libexecdir}/selinux/hll
 %{_libexecdir}/selinux/selinux-autorelabel
 %{_unitdir}/selinux-autorelabel-mark.service
@@ -309,41 +289,25 @@ or level of a logged in user.
 %{generatorsdir}/selinux-autorelabel-generator.sh
 %config %{_sysconfdir}/sestatus.conf
 %{_mandir}/man5/selinux_config.5.gz
-%{_mandir}/ru/man5/selinux_config.5.gz
 %{_mandir}/man5/sestatus.conf.5.gz
-%{_mandir}/ru/man5/sestatus.conf.5.gz
 %{_mandir}/man8/fixfiles.8*
-%{_mandir}/ru/man8/fixfiles.8*
 %{_mandir}/man8/load_policy.8*
-%{_mandir}/ru/man8/load_policy.8*
 %{_mandir}/man8/restorecon.8*
-%{_mandir}/ru/man8/restorecon.8*
 %{_mandir}/man8/restorecon_xattr.8*
-%{_mandir}/ru/man8/restorecon_xattr.8*
 %{_mandir}/man8/semodule.8*
-%{_mandir}/ru/man8/semodule.8*
 %{_mandir}/man8/sestatus.8*
-%{_mandir}/ru/man8/sestatus.8*
 %{_mandir}/man8/setfiles.8*
-%{_mandir}/ru/man8/setfiles.8*
 %{_mandir}/man8/setsebool.8*
-%{_mandir}/ru/man8/setsebool.8*
 %{_mandir}/man1/secon.1*
-%{_mandir}/ru/man1/secon.1*
 %{_mandir}/man8/genhomedircon.8*
-%{_mandir}/ru/man8/genhomedircon.8*
 %{_mandir}/man8/semodule_expand.8*
-%{_mandir}/ru/man8/semodule_expand.8*
 %{_mandir}/man8/semodule_link.8*
-%{_mandir}/ru/man8/semodule_link.8*
 %{_mandir}/man8/semodule_unpackage.8*
-%{_mandir}/ru/man8/semodule_unpackage.8*
 %{_mandir}/man8/semodule_package.8*
-%{_mandir}/ru/man8/semodule_package.8*
 %dir %{_datadir}/bash-completion
 %{_datadir}/bash-completion/completions/setsebool
 %{!?_licensedir:%global license %%doc}
-%license policycoreutils/COPYING
+%license policycoreutils/LICENSE
 %doc %{_usr}/share/doc/%{name}
 
 %package restorecond
@@ -361,40 +325,9 @@ The policycoreutils-restorecond package contains the restorecond service.
 %{_sysconfdir}/xdg/autostart/restorecond.desktop
 %{_datadir}/dbus-1/services/org.selinux.Restorecond.service
 %{_mandir}/man8/restorecond.8*
-%{_mandir}/ru/man8/restorecond.8*
-/usr/share/man/ru/man1/audit2why.1.gz
-/usr/share/man/ru/man1/newrole.1.gz
-/usr/share/man/ru/man5/selinux_config.5.gz
-/usr/share/man/ru/man5/sestatus.conf.5.gz
-/usr/share/man/ru/man8/genhomedircon.8.gz
-/usr/share/man/ru/man8/restorecon_xattr.8.gz
-/usr/share/man/ru/man8/semanage-boolean.8.gz
-/usr/share/man/ru/man8/semanage-dontaudit.8.gz
-/usr/share/man/ru/man8/semanage-export.8.gz
-/usr/share/man/ru/man8/semanage-fcontext.8.gz
-/usr/share/man/ru/man8/semanage-ibendport.8.gz
-/usr/share/man/ru/man8/semanage-ibpkey.8.gz
-/usr/share/man/ru/man8/semanage-import.8.gz
-/usr/share/man/ru/man8/semanage-interface.8.gz
-/usr/share/man/ru/man8/semanage-login.8.gz
-/usr/share/man/ru/man8/semanage-module.8.gz
-/usr/share/man/ru/man8/semanage-node.8.gz
-/usr/share/man/ru/man8/semanage-permissive.8.gz
-/usr/share/man/ru/man8/semanage-port.8.gz
-/usr/share/man/ru/man8/semanage-user.8.gz
-/usr/share/man/ru/man8/semodule_unpackage.8.gz
-/usr/share/man/ru/man8/sepolgen.8.gz
-/usr/share/man/ru/man8/sepolicy-booleans.8.gz
-/usr/share/man/ru/man8/sepolicy-communicate.8.gz
-/usr/share/man/ru/man8/sepolicy-generate.8.gz
-/usr/share/man/ru/man8/sepolicy-interface.8.gz
-/usr/share/man/ru/man8/sepolicy-manpage.8.gz
-/usr/share/man/ru/man8/sepolicy-network.8.gz
-/usr/share/man/ru/man8/sepolicy-transition.8.gz
-/usr/share/man/ru/man8/sepolicy.8.gz
 
 %{!?_licensedir:%global license %%doc}
-%license policycoreutils/COPYING
+%license policycoreutils/LICENSE
 
 %post
 %systemd_post selinux-autorelabel-mark.service
