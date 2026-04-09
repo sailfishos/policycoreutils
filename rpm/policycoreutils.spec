@@ -33,12 +33,13 @@ Version: 3.7
 Release: 1
 License: GPLv2
 Source: %{name}-%{version}.tar.bz2
-URL:     https://github.com/SELinuxProject
+URL:     https://github.com/sailfishos/policycoreutils
 Source15: selinux-autorelabel
 Source16: selinux-autorelabel.service
 Source17: selinux-autorelabel-mark.service
 Source18: selinux-autorelabel.target
 Source19: selinux-autorelabel-generator.sh
+Patch1:   0001-Disable-build-isolation-for-sepolicy-python-module.patch
 Provides: /sbin/fixfiles
 Provides: /sbin/restorecon
 
@@ -221,7 +222,7 @@ by python 3 in an SELinux environment.
 %{python3_sitelib}/sepolicy/network.py*
 %{python3_sitelib}/sepolicy/transition.py*
 %{python3_sitelib}/sepolicy/sedbus.py*
-%{python3_sitelib}/sepolicy*.egg-info
+%{python3_sitelib}/sepolicy*-info
 %{python3_sitelib}/sepolicy/__pycache__
 
 %package devel
